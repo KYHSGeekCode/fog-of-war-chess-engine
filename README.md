@@ -1,11 +1,12 @@
 # fog-of-war-chess-engine
 ## TODO
-- Fog of war
-- Refactoring
-- History
-- Pawn enpassant
-- Pawn promotion
+- [X] History
+- [X] Pawn enpassant
+- [X] Pawn promotion
 - Game ending
+- Fog of war
 - Sounds
 - Pgn export
+- Refactoring
 - AI
+

@@ -37,6 +37,9 @@ class Board {
     fun applyMove(move: Move) {
         pieces.remove(move.from.x to move.from.y)
         pieces.remove(move.to.x to move.to.y)
+        if (move.enPassantTarget != null) {
+            pieces.remove(move.enPassantTarget.x to move.enPassantTarget.y)
+        }
         if (move.promotingTo != null && move.promotingTo != PieceType.PAWN) { // promotion move
             pieces[move.to.x to move.to.y] = Piece(
                 move.to.x,
@@ -45,11 +48,13 @@ class Board {
                 move.promotingTo
             )
         } else {
-            pieces[move.to.x to move.to.y] = move.who.copy(x = move.to.x, y = move.to.y, moved = true)
+            pieces[move.to.x to move.to.y] =
+                move.who.copy(x = move.to.x, y = move.to.y, moved = true)
         }
-        if (move.capture) {
+        if (move.capture || move.enPassantTarget != null) {
             // TODO: add captured piece to graveyard
         }
+        history.add(move)
     }
 
     private val cells = Array(8) { x -> Array(8) { y -> Cell(x, y) } }

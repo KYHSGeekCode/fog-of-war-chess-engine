@@ -156,7 +156,7 @@ private fun Piece.checkEnPassant(board: Board): List<Move> {
     return listOf(
         Move(
             Coord(x, y),
-            Coord(lastMove.to.x, lastMove.to.y + distance / 2),
+            Coord(lastMove.to.x, lastMove.to.y - distance / 2),
             this,
             promotingTo = null
         )

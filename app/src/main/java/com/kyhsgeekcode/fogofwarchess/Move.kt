@@ -5,7 +5,8 @@ data class Move(
     val to: Coord,
     val who: Piece,
     val promotingTo: PieceType? = null,
-    val capture: Boolean = false
+    val capture: Boolean = false,
+    val enPassantTarget: Piece? = null
 ) {
     fun getPgn(): String {
         val sb = StringBuilder()
