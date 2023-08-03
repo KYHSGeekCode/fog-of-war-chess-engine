@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel.onCellClicked(it)
                             })
                         Text(text = "Selected Piece: ${viewModel.selectedPiece.collectAsState().value}")
+                        Text(text = "Game phase: ${viewModel.gamePhase.collectAsState().value}")
                     }
                     if (viewModel.promotingPawn.collectAsState().value != null) {
                         PromotionDialog(color = viewModel.currentTurn.collectAsState().value) {

@@ -11,7 +11,8 @@ fun Piece.checkPawnCapture(board: Board): List<Move> {
                     Coord(x, y),
                     Coord(x - 1, y - 1),
                     this,
-                    promotingTo = if (y == 1) PieceType.PAWN else null
+                    promotingTo = if (y == 1) PieceType.PAWN else null,
+                    captureTarget = board.getPiece(Coord(x - 1, y - 1))
                 )
             )
         }
@@ -21,7 +22,8 @@ fun Piece.checkPawnCapture(board: Board): List<Move> {
                     Coord(x, y),
                     Coord(x + 1, y - 1),
                     this,
-                    promotingTo = if (y == 1) PieceType.PAWN else null
+                    promotingTo = if (y == 1) PieceType.PAWN else null,
+                    captureTarget = board.getPiece(Coord(x + 1, y - 1))
                 )
             )
         }
@@ -32,7 +34,8 @@ fun Piece.checkPawnCapture(board: Board): List<Move> {
                     Coord(x, y),
                     Coord(x - 1, y + 1),
                     this,
-                    promotingTo = if (y == 6) PieceType.PAWN else null
+                    promotingTo = if (y == 6) PieceType.PAWN else null,
+                    captureTarget = board.getPiece(Coord(x - 1, y + 1))
                 )
             )
         }
@@ -42,7 +45,8 @@ fun Piece.checkPawnCapture(board: Board): List<Move> {
                     Coord(x, y),
                     Coord(x + 1, y + 1),
                     this,
-                    promotingTo = if (y == 6) PieceType.PAWN else null
+                    promotingTo = if (y == 6) PieceType.PAWN else null,
+                    captureTarget = board.getPiece(Coord(x + 1, y + 1))
                 )
             )
         }
@@ -158,7 +162,8 @@ private fun Piece.checkEnPassant(board: Board): List<Move> {
             Coord(x, y),
             Coord(lastMove.to.x, lastMove.to.y - distance / 2),
             this,
-            promotingTo = null
+            promotingTo = null,
+            captureTarget = board.getPiece(lastMove.to)
         )
     )
 }

@@ -76,7 +76,14 @@ data class Piece(
                 // if there is a piece, check if it is an enemy
                 if (piece != null) {
                     if (piece.color != color) {
-                        result.add(Move(Coord(x, y), Coord(x + i, y + j), this))
+                        result.add(
+                            Move(
+                                Coord(x, y),
+                                Coord(x + i, y + j),
+                                this,
+                                captureTarget = piece
+                            )
+                        )
                     }
                     continue
                 }
@@ -106,7 +113,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this))
+                    result.add(Move(Coord(x, y), coord, this, captureTarget = piece))
                 }
                 break
             }
@@ -122,7 +129,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this))
+                    result.add(Move(Coord(x, y), coord, this, captureTarget = piece))
                 }
                 break
             }
@@ -138,7 +145,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this))
+                    result.add(Move(Coord(x, y), coord, this, captureTarget = piece))
                 }
                 break
             }
@@ -154,7 +161,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this))
+                    result.add(Move(Coord(x, y), coord, this, captureTarget = piece))
                 }
                 break
             }
@@ -177,7 +184,7 @@ data class Piece(
                     result.add(Move(Coord(x, y), Coord(nx, ny), this))
                 } else {
                     if (piece.color != color) {
-                        result.add(Move(Coord(x, y), Coord(nx, ny), this))
+                        result.add(Move(Coord(x, y), Coord(nx, ny), this, captureTarget = piece))
                     }
                 }
             }
@@ -193,7 +200,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(i, y), this))
+                    result.add(Move(Coord(x, y), Coord(i, y), this, captureTarget = piece))
                 }
                 break
             }
@@ -205,7 +212,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(i, y), this))
+                    result.add(Move(Coord(x, y), Coord(i, y), this, captureTarget = piece))
                 }
                 break
             }
@@ -217,7 +224,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(x, i), this))
+                    result.add(Move(Coord(x, y), Coord(x, i), this, captureTarget = piece))
                 }
                 break
             }
@@ -229,7 +236,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(x, i), this))
+                    result.add(Move(Coord(x, y), Coord(x, i), this, captureTarget = piece))
                 }
                 break
             }

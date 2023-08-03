@@ -34,11 +34,12 @@ class Board {
         return pieces[coord]
     }
 
-    fun applyMove(move: Move) {
+    // returns winner if game is over or null
+    fun applyMove(move: Move): PieceColor? {
         pieces.remove(move.from.x to move.from.y)
         pieces.remove(move.to.x to move.to.y)
-        if (move.enPassantTarget != null) {
-            pieces.remove(move.enPassantTarget.x to move.enPassantTarget.y)
+        if (move.captureTarget != null) {
+            pieces.remove(move.captureTarget.x to move.captureTarget.y)
         }
         if (move.promotingTo != null && move.promotingTo != PieceType.PAWN) { // promotion move
             pieces[move.to.x to move.to.y] = Piece(
@@ -51,10 +52,15 @@ class Board {
             pieces[move.to.x to move.to.y] =
                 move.who.copy(x = move.to.x, y = move.to.y, moved = true)
         }
-        if (move.capture || move.enPassantTarget != null) {
+        if (move.captureTarget != null) {
             // TODO: add captured piece to graveyard
+            if (move.captureTarget.type == PieceType.KING) {
+                // TODO: game over
+                return move.who.color
+            }
         }
         history.add(move)
+        return null
     }
 
     private val cells = Array(8) { x -> Array(8) { y -> Cell(x, y) } }

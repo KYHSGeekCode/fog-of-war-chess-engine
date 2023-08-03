@@ -5,8 +5,7 @@ data class Move(
     val to: Coord,
     val who: Piece,
     val promotingTo: PieceType? = null,
-    val capture: Boolean = false,
-    val enPassantTarget: Piece? = null
+    val captureTarget: Piece? = null
 ) {
     fun getPgn(): String {
         val sb = StringBuilder()
@@ -19,7 +18,7 @@ data class Move(
         } else {
             sb.append(who.type.shortName)
             sb.append(from.coordCode)
-            if (capture) {
+            if (captureTarget != null) {
                 sb.append('x')
             }
             sb.append(to.coordCode)

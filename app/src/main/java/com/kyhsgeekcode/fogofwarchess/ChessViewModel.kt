@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class ChessViewModel : ViewModel() {
-
     private val _selectedPiece = MutableStateFlow<Piece?>(null)
     val selectedPiece = _selectedPiece as StateFlow<Piece?>
 
@@ -27,8 +26,14 @@ class ChessViewModel : ViewModel() {
     // piece: selected piece to promote to
     val promotingPawn = _promotingPawn as StateFlow<Piece?>
 
+    private val _gamePhase = MutableStateFlow(GamePhase.PLAYING)
+    val gamePhase = _gamePhase as StateFlow<GamePhase>
+
 
     fun onCellClicked(coord: Coord) {
+        if (gamePhase.value != GamePhase.PLAYING) {
+            return
+        }
         if (_selectedPiece.value == null) {
             selectPiece(coord)
         } else {
@@ -55,22 +60,28 @@ class ChessViewModel : ViewModel() {
     }
 
     private fun movePiece(move: Move) {
-        board.applyMove(move)
-        _possibleMoves.value = emptyList()
-        if (move.promotingTo != null) {
-            // show promotion options
-            _promotingPawn.value = move.who.copy(x = move.to.x, y = move.to.y)
-            return
-        }
-        _selectedPiece.value = null
-        _currentTurn.value = _currentTurn.value.opposite()
+        val winner = board.applyMove(move)
         _possibleMoves.value = emptyList()
         _boardSnapshot.value = board.toSnapshot()
+        when (winner) {
+            null -> {
+                if (move.promotingTo != null) {
+                    // show promotion options
+                    _promotingPawn.value = move.who.copy(x = move.to.x, y = move.to.y)
+                    return
+                }
+                _selectedPiece.value = null
+                _currentTurn.value = _currentTurn.value.opposite()
+                _possibleMoves.value = emptyList()
+            }
+            PieceColor.BLACK -> _gamePhase.value = GamePhase.BLACK_WIN
+            PieceColor.WHITE -> _gamePhase.value = GamePhase.WHITE_WIN
+        }
     }
 
     fun promotePiece(pieceType: PieceType) {
         val piece = _promotingPawn.value ?: return
-        board.applyMove(
+        val winner = board.applyMove(
             Move(
                 Coord(piece.x, piece.y),
                 Coord(piece.x, piece.y),
@@ -83,5 +94,10 @@ class ChessViewModel : ViewModel() {
         _currentTurn.value = _currentTurn.value.opposite()
         _possibleMoves.value = emptyList()
         _boardSnapshot.value = board.toSnapshot()
+        when (winner) {
+            null -> {}
+            PieceColor.BLACK -> _gamePhase.value = GamePhase.BLACK_WIN
+            PieceColor.WHITE -> _gamePhase.value = GamePhase.WHITE_WIN
+        }
     }
 }
