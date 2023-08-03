@@ -49,8 +49,8 @@ class MainActivity : ComponentActivity() {
                             onCLickCell = {
                                 viewModel.onCellClicked(it)
                             })
+                        Text(text = "Selected Piece: ${viewModel.selectedPiece.collectAsState().value}")
                     }
-
                 }
             }
         }
@@ -104,7 +104,7 @@ fun ColumnScope.ChessCell(
                     fontSize = 12.sp
                 )
             }
-            if (possibleMoves.any { it.to == cell }) {
+            if (possibleMoves.any { it.to == Coord(cell.x, cell.y) }) {
                 Text(
                     text = "X",
                     style = TextStyle.Default,
@@ -121,7 +121,7 @@ fun ColumnScope.ChessCell(
 fun ChessBoard(
     board: BoardSnapshot,
     possibleMoves: List<Move>,
-    onCLickCell: (Cell) -> Unit,
+    onCLickCell: (Coord) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -136,7 +136,7 @@ fun ChessBoard(
                         cell,
                         board.pieces[cell.x to cell.y],
                         onClick = {
-                            onCLickCell(cell)
+                            onCLickCell(Coord(cell.x, cell.y))
                         },
                         possibleMoves = possibleMoves,
                         modifier = modifier

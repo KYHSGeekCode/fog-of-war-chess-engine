@@ -5,22 +5,57 @@ import android.util.Log
 fun Piece.checkPawnCapture(board: Board): List<Move> {
     val result = mutableListOf<Move>()
     if (color == PieceColor.WHITE) { // y decreases when march forward
-        if (canCapture(board, Cell(x - 1, y - 1))) {
-            result.add(Move(Cell(x, y), Cell(x - 1, y - 1), this, true))
+        if (canCapture(board, Coord(x - 1, y - 1))) {
+            result.add(Move(Coord(x, y), Coord(x - 1, y - 1), this, true))
         }
-        if (canCapture(board, Cell(x + 1, y - 1))) {
-            result.add(Move(Cell(x, y), Cell(x + 1, y - 1), this, true))
+        if (canCapture(board, Coord(x + 1, y - 1))) {
+            result.add(Move(Coord(x, y), Coord(x + 1, y - 1), this, true))
         }
     } else {
-        if (canCapture(board, Cell(x - 1, y + 1))) {
-            result.add(Move(Cell(x, y), Cell(x - 1, y + 1), this, true))
+        if (canCapture(board, Coord(x - 1, y + 1))) {
+            result.add(Move(Coord(x, y), Coord(x - 1, y + 1), this, true))
         }
-        if (canCapture(board, Cell(x + 1, y + 1))) {
-            result.add(Move(Cell(x, y), Cell(x + 1, y + 1), this, true))
+        if (canCapture(board, Coord(x + 1, y + 1))) {
+            result.add(Move(Coord(x, y), Coord(x + 1, y + 1), this, true))
         }
     }
     return result
 }
+
+fun Piece.appendIfNoPiece(
+    board: Board, result: MutableList<Move>, coord: Coord, isPromotion: Boolean = false
+) {
+    if (!coord.isValid()) {
+        return
+    }
+
+    val piece = board.getPiece(coord)
+    if (piece == null) {
+        result.add(Move(Coord(x, y), coord, this, isPromotion = isPromotion))
+    }
+}
+
+fun Piece.appendIfNoPiece2(
+    board: Board,
+    result: MutableList<Move>,
+    coord1: Coord,
+    coord2: Coord,
+    isPromotion: Boolean = false
+) {
+    if (!coord1.isValid()) {
+        return
+    }
+    if (!coord2.isValid()) {
+        return
+    }
+
+    val piece1 = board.getPiece(coord1)
+    val piece2 = board.getPiece(coord2)
+    if (piece1 == null && piece2 == null) {
+        result.add(Move(Coord(x, y), coord2, this, isPromotion = isPromotion))
+    }
+}
+
 
 fun Piece.getPawnPossibleMoves(board: Board): List<Move> {
     val result = mutableListOf<Move>()
@@ -28,22 +63,22 @@ fun Piece.getPawnPossibleMoves(board: Board): List<Move> {
     if (color == PieceColor.WHITE) { // y decreases when march forward
         if (y == 6) { // beginning
             // can move 1 or 2
-            result.add(Move(Cell(x, y), Cell(x, y - 2), this))
-            result.add(Move(Cell(x, y), Cell(x, y - 1), this))
+            appendIfNoPiece2(board, result, Coord(x, y - 1), Coord(x, y - 2))
+            appendIfNoPiece(board, result, Coord(x, y - 1))
         } else if (y > 0) {
             // can move 1
-            result.add(Move(Cell(x, y), Cell(x, y - 1), this, isPromotion = y == 1))
+            appendIfNoPiece(board, result, Coord(x, y - 1), isPromotion = y == 1)
         } else {
             // should have been promoted
         }
     } else {
         if (y == 1) {
             // can move 1 or 2
-            result.add(Move(Cell(x, y), Cell(x, y + 2), this))
-            result.add(Move(Cell(x, y), Cell(x, y + 1), this))
+            appendIfNoPiece2(board, result, Coord(x, y + 1), Coord(x, y + 2))
+            appendIfNoPiece(board, result, Coord(x, y + 1))
         } else if (y < 7) {
             // can move 1
-            result.add(Move(Cell(x, y), Cell(x, y + 1), this))
+            appendIfNoPiece(board, result, Coord(x, y + 1), isPromotion = y == 6)
         } else {
             // should have been promoted
         }
@@ -53,20 +88,20 @@ fun Piece.getPawnPossibleMoves(board: Board): List<Move> {
     return result
 }
 
-private fun Piece.canPawnMoveForward(board: Board, cell: Cell): Boolean {
+private fun Piece.canPawnMoveForward(board: Board, Coord: Coord): Boolean {
     if (color == PieceColor.WHITE) { // y decreases when march forward
-        if (cell.x == x && cell.y == y - 1) {
+        if (Coord.x == x && Coord.y == y - 1) {
             return true
         }
-        if (cell.x == x && cell.y == y - 2 && !moved) {
+        if (Coord.x == x && Coord.y == y - 2 && !moved) {
             return true
         }
         return false
     } else {
-        if (cell.x == x && cell.y == y + 1) {
+        if (Coord.x == x && Coord.y == y + 1) {
             return true
         }
-        if (cell.x == x && cell.y == y + 2 && !moved) {
+        if (Coord.x == x && Coord.y == y + 2 && !moved) {
             return true
         }
         return false
@@ -82,7 +117,7 @@ private fun Piece.checkEnPassant(board: Board): List<Move> {
     if (lastMove.who.type != PieceType.PAWN) { // should be pawn
         return emptyList()
     }
-    // should have moved 2 cells
+    // should have moved 2 Coords
     val distance = lastMove.to.y - lastMove.from.y
     if (distance != 2 && distance != -2) {
         return emptyList()
@@ -96,6 +131,6 @@ private fun Piece.checkEnPassant(board: Board): List<Move> {
         return emptyList()
     }
     return listOf(
-        Move(Cell(x, y), Cell(lastMove.to.x, lastMove.to.y + distance / 2), this, false)
+        Move(Coord(x, y), Coord(lastMove.to.x, lastMove.to.y + distance / 2), this, false)
     )
 }

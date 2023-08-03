@@ -1,13 +1,5 @@
 package com.kyhsgeekcode.fogofwarchess
 
-import androidx.compose.ui.graphics.Color
-
-enum class PieceColor(val color: Color) {
-    BLACK(Color(0xFF000000)),
-    WHITE(Color(0xFFFFFFFF));
-
-    fun opposite(): PieceColor = if (this == BLACK) WHITE else BLACK
-}
 
 enum class PieceType(val shortName: Char, val value: Int) {
     PAWN(' ', 1),
@@ -18,41 +10,6 @@ enum class PieceType(val shortName: Char, val value: Int) {
     KING('K', 1000);
 }
 
-data class Move(
-    val from: Cell,
-    val to: Cell,
-    val who: Piece,
-    val isPromotion: Boolean = false,
-    val capture: Boolean = false
-) {
-    fun apply(board: Board) {
-        board.pieces.remove(from.x to from.y)
-        board.pieces.remove(to.x to to.y)
-        board.pieces[to.x to to.y] = who.copy(x = to.x, y = to.y, moved = true)
-        if (capture) {
-            // TODO: add captured piece to graveyard
-        }
-    }
-
-    fun getPgn(): String {
-        val sb = StringBuilder()
-        if (isPromotion) {
-            sb.append(who.type.shortName)
-            sb.append(from.coordCode)
-            sb.append(to.coordCode)
-            sb.append(who.type.shortName)
-            sb.append("=Q")
-        } else {
-            sb.append(who.type.shortName)
-            sb.append(from.coordCode)
-            if (capture) {
-                sb.append('x')
-            }
-            sb.append(to.coordCode)
-        }
-        return sb.toString()
-    }
-}
 
 data class Piece(
     val x: Int,
@@ -111,16 +68,16 @@ data class Piece(
                 if (coord.first !in 0..7 || coord.second !in 0..7) {
                     continue
                 }
-                val piece = board.pieces[coord]
+                val piece = board.getPiece(coord)
                 // if there is a piece, check if it is an enemy
                 if (piece != null) {
                     if (piece.color != color) {
-                        result.add(Move(Cell(x, y), Cell(x + i, y + j), this, true))
+                        result.add(Move(Coord(x, y), Coord(x + i, y + j), this, true))
                     }
                     continue
                 }
                 // if there is no piece, add the move
-                result.add(Move(Cell(x, y), Cell(x + i, y + j), this))
+                result.add(Move(Coord(x, y), Coord(x + i, y + j), this))
             }
         }
         return result
@@ -137,68 +94,68 @@ data class Piece(
         // extend to 4 directions
         val result = mutableListOf<Move>()
         for (i in 1..7) {
-            val coord = x + i to y + i
-            if (coord.first !in 0..7 || coord.second !in 0..7) {
+            val coord = Coord(x + i, y + i)
+            if (!coord.isValid()) {
                 break
             }
-            val piece = board.pieces[coord]
+            val piece = board.getPiece(coord)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Cell(x, y), Cell(x + i, y + i), this, true))
+                    result.add(Move(Coord(x, y), coord, this, true))
                 }
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(Cell(x, y), Cell(x + i, y + i), this))
+            result.add(Move(Coord(x, y), coord, this))
         }
         for (i in 1..7) {
-            val coord = x - i to y - i
-            if (coord.first !in 0..7 || coord.second !in 0..7) {
+            val coord = Coord(x - i, y - i)
+            if (!coord.isValid()) {
                 break
             }
-            val piece = board.pieces[coord]
+            val piece = board.getPiece(coord)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Cell(x, y), Cell(x - i, y + i), this, true))
+                    result.add(Move(Coord(x, y), coord, this, true))
                 }
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(Cell(x, y), Cell(x - i, y + i), this))
+            result.add(Move(Coord(x, y), coord, this))
         }
         for (i in 1..7) {
-            val coord = x + i to y - i
-            if (coord.first !in 0..7 || coord.second !in 0..7) {
+            val coord = Coord(x + i, y - i)
+            if (!coord.isValid()) {
                 break
             }
-            val piece = board.pieces[coord]
+            val piece = board.getPiece(coord)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Cell(x, y), Cell(x + i, y - i), this, true))
+                    result.add(Move(Coord(x, y), coord, this, true))
                 }
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(Cell(x, y), Cell(x + i, y - i), this))
+            result.add(Move(Coord(x, y), coord, this))
         }
         for (i in 1..7) {
-            val coord = x - i to y - i
-            if (coord.first !in 0..7 || coord.second !in 0..7) {
+            val coord = Coord(x - i, y + i)
+            if (!coord.isValid()) {
                 break
             }
-            val piece = board.pieces[coord]
+            val piece = board.getPiece(coord)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Cell(x, y), Cell(x - i, y - i), this, true))
+                    result.add(Move(Coord(x, y), coord, this, true))
                 }
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(Cell(x, y), Cell(x - i, y - i), this))
+            result.add(Move(Coord(x, y), coord, this))
         }
         return result
     }
@@ -211,12 +168,12 @@ data class Piece(
             val nx = x + dx[i]
             val ny = y + dy[i]
             if (nx in 0..7 && ny in 0..7) {
-                val piece = board.pieces[nx to ny]
+                val piece = board.getPiece(nx to ny)
                 if (piece == null) {
-                    result.add(Move(Cell(x, y), Cell(nx, ny), this))
+                    result.add(Move(Coord(x, y), Coord(nx, ny), this))
                 } else {
                     if (piece.color != color) {
-                        result.add(Move(Cell(x, y), Cell(nx, ny), this, true))
+                        result.add(Move(Coord(x, y), Coord(nx, ny), this, true))
                     }
                 }
             }
@@ -228,66 +185,62 @@ data class Piece(
         // extend to 4 directions
         val result = mutableListOf<Move>()
         for (i in x + 1..7) {
-            val piece = board.pieces[i to y]
+            val piece = board.getPiece(i, y)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Cell(x, y), Cell(i, y), this, true))
+                    result.add(Move(Coord(x, y), Coord(i, y), this, true))
                 }
                 break
             }
             // no piece, continue
-            result.add(Move(Cell(x, y), Cell(i, y), this))
+            result.add(Move(Coord(x, y), Coord(i, y), this))
         }
         for (i in x - 1 downTo 0) {
-            val piece = board.pieces[i to y]
+            val piece = board.getPiece(i to y)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Cell(x, y), Cell(i, y), this, true))
+                    result.add(Move(Coord(x, y), Coord(i, y), this, true))
                 }
                 break
             }
             // no piece, continue
-            result.add(Move(Cell(x, y), Cell(i, y), this))
+            result.add(Move(Coord(x, y), Coord(i, y), this))
         }
         for (i in y + 1..7) {
-            val piece = board.pieces[x to i]
+            val piece = board.getPiece(x to i)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Cell(x, y), Cell(x, i), this, true))
+                    result.add(Move(Coord(x, y), Coord(x, i), this, true))
                 }
                 break
             }
             // no piece, continue
-            result.add(Move(Cell(x, y), Cell(x, i), this))
+            result.add(Move(Coord(x, y), Coord(x, i), this))
         }
         for (i in y - 1 downTo 0) {
-            val piece = board.pieces[x to i]
+            val piece = board.getPiece(x to i)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Cell(x, y), Cell(x, i), this, true))
+                    result.add(Move(Coord(x, y), Coord(x, i), this, true))
                 }
                 break
             }
             // no piece, continue
-            result.add(Move(Cell(x, y), Cell(x, i), this))
+            result.add(Move(Coord(x, y), Coord(x, i), this))
         }
         return result
     }
 
 
-    fun canCapture(board: Board, cell: Cell): Boolean {
-        if (cell.x < 0 || cell.x > 7 || cell.y < 0 || cell.y > 7) { // out of board
+    fun canCapture(board: Board, Coord: Coord): Boolean {
+        if (Coord.x < 0 || Coord.x > 7 || Coord.y < 0 || Coord.y > 7) { // out of board
             return false
         }
-        val piece = board.pieces[cell.x to cell.y] ?: return false
+        val piece = board.getPiece(Coord.x to Coord.y) ?: return false
         return piece.color != color
-    }
-
-    fun moveTo(cell: Cell) {
-        TODO("Not yet implemented")
     }
 }

@@ -13,14 +13,6 @@ enum class BoardColor {
     }
 }
 
-data class Cell(
-    val x: Int,
-    val y: Int,
-    val visible: Boolean = true,
-    val color: BoardColor = if ((x + y) % 2 == 0) BoardColor.LIGHT else BoardColor.DARK
-) {
-    val coordCode = "${'a' + x}${8 - y}"
-}
 
 class Board {
     fun toSnapshot(): BoardSnapshot {
@@ -30,8 +22,29 @@ class Board {
         )
     }
 
+    fun getPiece(x: Int, y: Int): Piece? {
+        return pieces[x to y]
+    }
+
+    fun getPiece(coord: Coord): Piece? {
+        return pieces[coord.x to coord.y]
+    }
+
+    fun getPiece(coord: Pair<Int, Int>): Piece? {
+        return pieces[coord]
+    }
+
+    fun applyMove(move: Move) {
+        pieces.remove(move.from.x to move.from.y)
+        pieces.remove(move.to.x to move.to.y)
+        pieces[move.to.x to move.to.y] = move.who.copy(x = move.to.x, y = move.to.y, moved = true)
+        if (move.capture) {
+            // TODO: add captured piece to graveyard
+        }
+    }
+
     private val cells = Array(8) { x -> Array(8) { y -> Cell(x, y) } }
-    val pieces = mutableMapOf<Pair<Int, Int>, Piece>()
+    private val pieces = mutableMapOf<Pair<Int, Int>, Piece>()
     val history = mutableListOf<Move>()
 
     init {

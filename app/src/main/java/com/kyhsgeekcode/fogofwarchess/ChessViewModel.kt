@@ -21,23 +21,23 @@ class ChessViewModel : ViewModel() {
     val boardSnapshot = _boardSnapshot as StateFlow<BoardSnapshot>
 
 
-    fun onCellClicked(cell: Cell) {
+    fun onCellClicked(coord: Coord) {
         if (_selectedPiece.value == null) {
-            selectPiece(cell)
+            selectPiece(coord)
         } else {
             // check if the cell is in possible moves
             val possibleMoves = _possibleMoves.value
-            val move = possibleMoves.find { it.to == cell }
+            val move = possibleMoves.find { it.to == coord }
             if (move != null) {
                 movePiece(move)
             } else {
-                selectPiece(cell)
+                selectPiece(coord)
             }
         }
     }
 
-    private fun selectPiece(cell: Cell) {
-        val piece = board.pieces[cell.x to cell.y]
+    private fun selectPiece(coord: Coord) {
+        val piece = board.getPiece(coord)
         if (piece != null && piece.color == _currentTurn.value) {
             _selectedPiece.value = piece
             _possibleMoves.value = piece.getPossibleMoves(board)
@@ -48,7 +48,7 @@ class ChessViewModel : ViewModel() {
     }
 
     private fun movePiece(move: Move) {
-        move.apply(board)
+        board.applyMove(move)
         _selectedPiece.value = null
         _currentTurn.value = _currentTurn.value.opposite()
         _possibleMoves.value = emptyList()
