@@ -1,15 +1,19 @@
 package com.kyhsgeekcode.fogofwarchess
 
 
-enum class PieceType(val shortName: Char, val value: Int) {
-    PAWN(' ', 1),
-    ROOK('R', 5),
-    KNIGHT('N', 3),
-    BISHOP('B', 3),
-    QUEEN('Q', 9),
-    KING('K', 1000);
+enum class PieceType(
+    val shortName: Char,
+    val value: Int,
+    val blackResId: Int,
+    val whiteResId: Int
+) {
+    PAWN(' ', 1, R.drawable.pdt, R.drawable.plt),
+    ROOK('R', 5, R.drawable.rdt, R.drawable.rlt),
+    KNIGHT('N', 3, R.drawable.ndt, R.drawable.nlt),
+    BISHOP('B', 3, R.drawable.bdt, R.drawable.blt),
+    QUEEN('Q', 9, R.drawable.qdt, R.drawable.qlt),
+    KING('K', 1000, R.drawable.kdt, R.drawable.klt);
 }
-
 
 data class Piece(
     val x: Int,

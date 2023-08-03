@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,19 +91,15 @@ fun ColumnScope.ChessCell(
 //                modifier = modifier.align(Alignment.Center),
 //            )
             if (piece != null && cell.visible) {
-                Text(
-                    text = piece.type.name,
-                    style = if (piece.color == PieceColor.WHITE) TextStyle.Default.copy(
-                        drawStyle = Stroke(
-                            miter = 8f,
-                            width = 1f,
-                            join = StrokeJoin.Round,
-                        ),
-                        color = piece.color.color
-                    ) else TextStyle.Default,
-                    modifier = modifier.align(Alignment.Center),
-                    color = Color.Black,
-                    fontSize = 12.sp
+                Image(
+                    painter =
+                    painterResource(
+                        id = if (piece.color == PieceColor.BLACK) piece.type.blackResId else piece.type.whiteResId
+                    ),
+                    contentDescription = piece.type.name,
+                    modifier = modifier
+                        .align(Alignment.Center)
+                        .fillMaxSize()
                 )
             }
             if (possibleMoves.any { it.to == Coord(cell.x, cell.y) }) {
