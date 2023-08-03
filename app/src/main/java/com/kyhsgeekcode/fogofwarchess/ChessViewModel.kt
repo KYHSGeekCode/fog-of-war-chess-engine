@@ -20,6 +20,13 @@ class ChessViewModel : ViewModel() {
     private val _boardSnapshot = MutableStateFlow(board.toSnapshot())
     val boardSnapshot = _boardSnapshot as StateFlow<BoardSnapshot>
 
+    private val _promotingPawn = MutableStateFlow<Piece?>(null)
+
+    // null: will not promote
+    // pawn: will promote
+    // piece: selected piece to promote to
+    val promotingPawn = _promotingPawn as StateFlow<Piece?>
+
 
     fun onCellClicked(coord: Coord) {
         if (_selectedPiece.value == null) {
@@ -49,6 +56,29 @@ class ChessViewModel : ViewModel() {
 
     private fun movePiece(move: Move) {
         board.applyMove(move)
+        _possibleMoves.value = emptyList()
+        if (move.promotingTo != null) {
+            // show promotion options
+            _promotingPawn.value = move.who.copy(x = move.to.x, y = move.to.y)
+            return
+        }
+        _selectedPiece.value = null
+        _currentTurn.value = _currentTurn.value.opposite()
+        _possibleMoves.value = emptyList()
+        _boardSnapshot.value = board.toSnapshot()
+    }
+
+    fun promotePiece(pieceType: PieceType) {
+        val piece = _promotingPawn.value ?: return
+        board.applyMove(
+            Move(
+                Coord(piece.x, piece.y),
+                Coord(piece.x, piece.y),
+                piece,
+                promotingTo = pieceType
+            )
+        )
+        _promotingPawn.value = null
         _selectedPiece.value = null
         _currentTurn.value = _currentTurn.value.opposite()
         _possibleMoves.value = emptyList()

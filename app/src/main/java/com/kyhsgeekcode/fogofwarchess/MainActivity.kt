@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,13 +24,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.kyhsgeekcode.fogofwarchess.ui.theme.FogOfWarChessTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,6 +54,11 @@ class MainActivity : ComponentActivity() {
                                 viewModel.onCellClicked(it)
                             })
                         Text(text = "Selected Piece: ${viewModel.selectedPiece.collectAsState().value}")
+                    }
+                    if (viewModel.promotingPawn.collectAsState().value != null) {
+                        PromotionDialog(color = viewModel.currentTurn.collectAsState().value) {
+                            viewModel.promotePiece(it)
+                        }
                     }
                 }
             }
@@ -110,6 +117,37 @@ fun ColumnScope.ChessCell(
                     color = Color.Red,
                     fontSize = 12.sp
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun PromotionDialog(color: PieceColor, onClick: (PieceType) -> Unit) {
+    Dialog(onDismissRequest = { /*TODO*/ }) {
+        Surface(
+            modifier = Modifier.size(400.dp, 300.dp),
+            color = Color.White,
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Column {
+                Text(text = "Promote to")
+                for (type in arrayOf(
+                    PieceType.QUEEN,
+                    PieceType.ROOK,
+                    PieceType.BISHOP,
+                    PieceType.KNIGHT
+                )) {
+                    Row(modifier = Modifier
+                        .clickable { onClick(type) }
+                        .fillMaxWidth()) {
+                        Image(
+                            painter = painterResource(id = if (color == PieceColor.BLACK) type.blackResId else type.whiteResId),
+                            contentDescription = type.name,
+                        )
+                        Text(text = type.name)
+                    }
+                }
             }
         }
     }

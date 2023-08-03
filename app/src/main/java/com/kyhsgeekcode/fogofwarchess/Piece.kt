@@ -76,7 +76,7 @@ data class Piece(
                 // if there is a piece, check if it is an enemy
                 if (piece != null) {
                     if (piece.color != color) {
-                        result.add(Move(Coord(x, y), Coord(x + i, y + j), this, true))
+                        result.add(Move(Coord(x, y), Coord(x + i, y + j), this))
                     }
                     continue
                 }
@@ -106,7 +106,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this, true))
+                    result.add(Move(Coord(x, y), coord, this))
                 }
                 break
             }
@@ -122,7 +122,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this, true))
+                    result.add(Move(Coord(x, y), coord, this))
                 }
                 break
             }
@@ -138,7 +138,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this, true))
+                    result.add(Move(Coord(x, y), coord, this))
                 }
                 break
             }
@@ -154,7 +154,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this, true))
+                    result.add(Move(Coord(x, y), coord, this))
                 }
                 break
             }
@@ -177,7 +177,7 @@ data class Piece(
                     result.add(Move(Coord(x, y), Coord(nx, ny), this))
                 } else {
                     if (piece.color != color) {
-                        result.add(Move(Coord(x, y), Coord(nx, ny), this, true))
+                        result.add(Move(Coord(x, y), Coord(nx, ny), this))
                     }
                 }
             }
@@ -193,7 +193,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(i, y), this, true))
+                    result.add(Move(Coord(x, y), Coord(i, y), this))
                 }
                 break
             }
@@ -205,7 +205,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(i, y), this, true))
+                    result.add(Move(Coord(x, y), Coord(i, y), this))
                 }
                 break
             }
@@ -217,7 +217,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(x, i), this, true))
+                    result.add(Move(Coord(x, y), Coord(x, i), this))
                 }
                 break
             }
@@ -229,7 +229,7 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(x, i), this, true))
+                    result.add(Move(Coord(x, y), Coord(x, i), this))
                 }
                 break
             }

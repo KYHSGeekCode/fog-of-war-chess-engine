@@ -37,7 +37,16 @@ class Board {
     fun applyMove(move: Move) {
         pieces.remove(move.from.x to move.from.y)
         pieces.remove(move.to.x to move.to.y)
-        pieces[move.to.x to move.to.y] = move.who.copy(x = move.to.x, y = move.to.y, moved = true)
+        if (move.promotingTo != null && move.promotingTo != PieceType.PAWN) { // promotion move
+            pieces[move.to.x to move.to.y] = Piece(
+                move.to.x,
+                move.to.y,
+                move.who.color,
+                move.promotingTo
+            )
+        } else {
+            pieces[move.to.x to move.to.y] = move.who.copy(x = move.to.x, y = move.to.y, moved = true)
+        }
         if (move.capture) {
             // TODO: add captured piece to graveyard
         }

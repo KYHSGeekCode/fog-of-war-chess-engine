@@ -6,17 +6,45 @@ fun Piece.checkPawnCapture(board: Board): List<Move> {
     val result = mutableListOf<Move>()
     if (color == PieceColor.WHITE) { // y decreases when march forward
         if (canCapture(board, Coord(x - 1, y - 1))) {
-            result.add(Move(Coord(x, y), Coord(x - 1, y - 1), this, true))
+            result.add(
+                Move(
+                    Coord(x, y),
+                    Coord(x - 1, y - 1),
+                    this,
+                    promotingTo = if (y == 1) PieceType.PAWN else null
+                )
+            )
         }
         if (canCapture(board, Coord(x + 1, y - 1))) {
-            result.add(Move(Coord(x, y), Coord(x + 1, y - 1), this, true))
+            result.add(
+                Move(
+                    Coord(x, y),
+                    Coord(x + 1, y - 1),
+                    this,
+                    promotingTo = if (y == 1) PieceType.PAWN else null
+                )
+            )
         }
     } else {
         if (canCapture(board, Coord(x - 1, y + 1))) {
-            result.add(Move(Coord(x, y), Coord(x - 1, y + 1), this, true))
+            result.add(
+                Move(
+                    Coord(x, y),
+                    Coord(x - 1, y + 1),
+                    this,
+                    promotingTo = if (y == 6) PieceType.PAWN else null
+                )
+            )
         }
         if (canCapture(board, Coord(x + 1, y + 1))) {
-            result.add(Move(Coord(x, y), Coord(x + 1, y + 1), this, true))
+            result.add(
+                Move(
+                    Coord(x, y),
+                    Coord(x + 1, y + 1),
+                    this,
+                    promotingTo = if (y == 6) PieceType.PAWN else null
+                )
+            )
         }
     }
     return result
@@ -31,7 +59,14 @@ fun Piece.appendIfNoPiece(
 
     val piece = board.getPiece(coord)
     if (piece == null) {
-        result.add(Move(Coord(x, y), coord, this, isPromotion = isPromotion))
+        result.add(
+            Move(
+                Coord(x, y),
+                coord,
+                this,
+                promotingTo = if (isPromotion) PieceType.PAWN else null
+            )
+        )
     }
 }
 
@@ -52,7 +87,14 @@ fun Piece.appendIfNoPiece2(
     val piece1 = board.getPiece(coord1)
     val piece2 = board.getPiece(coord2)
     if (piece1 == null && piece2 == null) {
-        result.add(Move(Coord(x, y), coord2, this, isPromotion = isPromotion))
+        result.add(
+            Move(
+                Coord(x, y),
+                coord2,
+                this,
+                promotingTo = if (isPromotion) PieceType.PAWN else null
+            )
+        )
     }
 }
 
@@ -88,25 +130,6 @@ fun Piece.getPawnPossibleMoves(board: Board): List<Move> {
     return result
 }
 
-private fun Piece.canPawnMoveForward(board: Board, Coord: Coord): Boolean {
-    if (color == PieceColor.WHITE) { // y decreases when march forward
-        if (Coord.x == x && Coord.y == y - 1) {
-            return true
-        }
-        if (Coord.x == x && Coord.y == y - 2 && !moved) {
-            return true
-        }
-        return false
-    } else {
-        if (Coord.x == x && Coord.y == y + 1) {
-            return true
-        }
-        if (Coord.x == x && Coord.y == y + 2 && !moved) {
-            return true
-        }
-        return false
-    }
-}
 
 private fun Piece.checkEnPassant(board: Board): List<Move> {
     val history = board.history
@@ -131,6 +154,11 @@ private fun Piece.checkEnPassant(board: Board): List<Move> {
         return emptyList()
     }
     return listOf(
-        Move(Coord(x, y), Coord(lastMove.to.x, lastMove.to.y + distance / 2), this, false)
+        Move(
+            Coord(x, y),
+            Coord(lastMove.to.x, lastMove.to.y + distance / 2),
+            this,
+            promotingTo = null
+        )
     )
 }
