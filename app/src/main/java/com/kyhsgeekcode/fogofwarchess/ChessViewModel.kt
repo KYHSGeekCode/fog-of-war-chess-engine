@@ -29,6 +29,12 @@ class ChessViewModel : ViewModel() {
     private val _gamePhase = MutableStateFlow(GamePhase.PLAYING)
     val gamePhase = _gamePhase as StateFlow<GamePhase>
 
+    private val _visibleCoords = MutableStateFlow<List<Coord>>(emptyList())
+    val visibleCoords = _visibleCoords as StateFlow<List<Coord>>
+
+    init {
+        calculateVisibleCoords()
+    }
 
     fun onCellClicked(coord: Coord) {
         if (gamePhase.value != GamePhase.PLAYING) {
@@ -71,9 +77,10 @@ class ChessViewModel : ViewModel() {
                     return
                 }
                 _selectedPiece.value = null
-                _currentTurn.value = _currentTurn.value.opposite()
+                swapTurn()
                 _possibleMoves.value = emptyList()
             }
+
             PieceColor.BLACK -> _gamePhase.value = GamePhase.BLACK_WIN
             PieceColor.WHITE -> _gamePhase.value = GamePhase.WHITE_WIN
         }
@@ -91,7 +98,7 @@ class ChessViewModel : ViewModel() {
         )
         _promotingPawn.value = null
         _selectedPiece.value = null
-        _currentTurn.value = _currentTurn.value.opposite()
+        swapTurn()
         _possibleMoves.value = emptyList()
         _boardSnapshot.value = board.toSnapshot()
         when (winner) {
@@ -99,5 +106,22 @@ class ChessViewModel : ViewModel() {
             PieceColor.BLACK -> _gamePhase.value = GamePhase.BLACK_WIN
             PieceColor.WHITE -> _gamePhase.value = GamePhase.WHITE_WIN
         }
+    }
+
+    private fun swapTurn() {
+        _currentTurn.value = _currentTurn.value.opposite()
+        calculateVisibleCoords()
+    }
+
+    private fun calculateVisibleCoords() {
+        val currentColor = _currentTurn.value
+        val visibleCoords = mutableListOf<Coord>()
+        board.pieces.values.filter {
+            it.color == currentColor
+        }.forEach {
+            visibleCoords.addAll(it.getPossibleMoves(board).map { move -> move.to })
+            visibleCoords.add(Coord(it.x, it.y))
+        }
+        _visibleCoords.value = visibleCoords
     }
 }

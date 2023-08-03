@@ -64,7 +64,7 @@ class Board {
     }
 
     private val cells = Array(8) { x -> Array(8) { y -> Cell(x, y) } }
-    private val pieces = mutableMapOf<Pair<Int, Int>, Piece>()
+    val pieces = mutableMapOf<Pair<Int, Int>, Piece>()
     val history = mutableListOf<Move>()
 
     init {

@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
                         ChessBoard(
                             viewModel.boardSnapshot.collectAsState().value,
                             viewModel.possibleMoves.collectAsState().value,
+                            viewModel.visibleCoords.collectAsState().value,
                             onCLickCell = {
                                 viewModel.onCellClicked(it)
                             })
@@ -73,6 +74,7 @@ fun ColumnScope.ChessCell(
     cell: Cell,
     piece: Piece?,
     possibleMoves: List<Move>,
+    isVisible: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -80,7 +82,7 @@ fun ColumnScope.ChessCell(
         modifier = modifier
             .weight(1f)
             .background(
-                color = if (cell.visible) {
+                color = if (isVisible) {
                     cell.color.getColor()
                 } else {
                     Color.Gray
@@ -98,7 +100,7 @@ fun ColumnScope.ChessCell(
 //                text = cell.coordCode,
 //                modifier = modifier.align(Alignment.Center),
 //            )
-            if (piece != null && cell.visible) {
+            if (piece != null && isVisible) {
                 Image(
                     painter =
                     painterResource(
@@ -158,6 +160,7 @@ fun PromotionDialog(color: PieceColor, onClick: (PieceType) -> Unit) {
 fun ChessBoard(
     board: BoardSnapshot,
     possibleMoves: List<Move>,
+    visibleCoords: List<Coord>,
     onCLickCell: (Coord) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -172,6 +175,7 @@ fun ChessBoard(
                     ChessCell(
                         cell,
                         board.pieces[cell.x to cell.y],
+                        isVisible = visibleCoords.contains(Coord(cell.x, cell.y)),
                         onClick = {
                             onCLickCell(Coord(cell.x, cell.y))
                         },
@@ -193,7 +197,11 @@ fun GreetingPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ChessBoard(Board().toSnapshot(), possibleMoves = listOf(), onCLickCell = {})
+            ChessBoard(
+                Board().toSnapshot(),
+                possibleMoves = listOf(),
+                visibleCoords = listOf(),
+                onCLickCell = {})
         }
     }
 }
