@@ -1,5 +1,7 @@
 package com.kyhsgeekcode.fogofwarchess
 
+import android.content.Context
+import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +38,7 @@ class ChessViewModel : ViewModel() {
         calculateVisibleCoords()
     }
 
-    fun onCellClicked(coord: Coord) {
+    fun onCellClicked(coord: Coord, context: Context) {
         if (gamePhase.value != GamePhase.PLAYING) {
             return
         }
@@ -47,7 +49,7 @@ class ChessViewModel : ViewModel() {
             val possibleMoves = _possibleMoves.value
             val move = possibleMoves.find { it.to == coord }
             if (move != null) {
-                movePiece(move)
+                movePiece(move, context)
             } else {
                 selectPiece(coord)
             }
@@ -65,7 +67,15 @@ class ChessViewModel : ViewModel() {
         }
     }
 
-    private fun movePiece(move: Move) {
+    private fun movePiece(move: Move, context: Context) {
+        if (move.captureTarget == null) {
+            val mp = MediaPlayer.create(context, R.raw.place)
+            mp.start()
+        } else {
+            val mp = MediaPlayer.create(context, R.raw.drop)
+            mp.start()
+        }
+
         val winner = board.applyMove(move)
         _possibleMoves.value = emptyList()
         _boardSnapshot.value = board.toSnapshot()

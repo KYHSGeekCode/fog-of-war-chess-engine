@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                             viewModel.possibleMoves.collectAsState().value,
                             viewModel.visibleCoords.collectAsState().value,
                             onCLickCell = {
-                                viewModel.onCellClicked(it)
+                                viewModel.onCellClicked(it, applicationContext)
                             })
                         Text(text = "Selected Piece: ${viewModel.selectedPiece.collectAsState().value}")
                         Text(text = "Game phase: ${viewModel.gamePhase.collectAsState().value}")
