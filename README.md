@@ -3,8 +3,8 @@
 - [X] History
 - [X] Pawn enpassant
 - [X] Pawn promotion
-- Game ending
-- Fog of war
+- [X] Game ending
+- [X] Fog of war
 - Sounds
 - Pgn export
 - Refactoring
