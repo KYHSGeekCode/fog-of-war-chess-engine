@@ -36,6 +36,7 @@ class Board {
 
     // returns winner if game is over or null
     fun applyMove(move: Move): PieceColor? {
+        history.add(move)
         pieces.remove(move.from.x to move.from.y)
         pieces.remove(move.to.x to move.to.y)
         if (move.captureTarget != null) {
@@ -59,7 +60,6 @@ class Board {
                 return move.who.color
             }
         }
-        history.add(move)
         return null
     }
 

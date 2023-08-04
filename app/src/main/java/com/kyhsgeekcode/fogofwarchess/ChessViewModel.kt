@@ -100,6 +100,7 @@ class ChessViewModel : ViewModel() {
         val piece = _promotingPawn.value ?: return
         val winner = board.applyMove(
             Move(
+                board.toSnapshot(),
                 Coord(piece.x, piece.y),
                 Coord(piece.x, piece.y),
                 piece,
@@ -133,5 +134,43 @@ class ChessViewModel : ViewModel() {
             visibleCoords.add(Coord(it.x, it.y))
         }
         _visibleCoords.value = visibleCoords
+    }
+
+    fun getHistoryString(): String {
+        val history = board.history
+        // fold promotion moves
+        val foldedHistory = mutableListOf<Move>()
+        var shouldSkip = false
+        for (i in history.indices) {
+            if (shouldSkip) {
+                shouldSkip = false
+                continue
+            }
+            val move = history[i]
+            if (move.promotingTo == PieceType.PAWN && i + 1 < history.size) {
+                val promotingMove = history[i + 1]
+                val newMove = move.copy(promotingTo = promotingMove.promotingTo)
+                foldedHistory.add(newMove)
+                shouldSkip = true
+            } else {
+                foldedHistory.add(move)
+            }
+        }
+
+        val historyString = foldedHistory.withIndex().joinToString(" ") {
+            val move = it.value
+            val idx = it.index
+            val prefix = if (move.who.color == PieceColor.BLACK) {
+                "..."
+            } else {
+                "."
+            }
+            if (idx % 2 == 0) {
+                "${idx / 2 + 1}$prefix${move.getPgn()}"
+            } else {
+                prefix + move.getPgn()
+            }
+        }
+        return historyString
     }
 }

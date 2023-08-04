@@ -21,4 +21,8 @@ data class BoardSnapshot(
         result = 31 * result + pieces.hashCode()
         return result
     }
+
+    fun getPiece(x: Int, y: Int): Piece? {
+        return pieces[Pair(x, y)]
+    }
 }

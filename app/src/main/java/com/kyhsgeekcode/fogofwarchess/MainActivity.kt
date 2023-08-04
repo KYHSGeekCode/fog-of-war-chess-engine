@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,7 +56,15 @@ class MainActivity : ComponentActivity() {
                                 viewModel.onCellClicked(it, applicationContext)
                             })
                         Text(text = "Selected Piece: ${viewModel.selectedPiece.collectAsState().value}")
-                        Text(text = "Game phase: ${viewModel.gamePhase.collectAsState().value}")
+                        val gamePhase = viewModel.gamePhase.collectAsState().value
+                        Text(text = "Game phase: $gamePhase")
+                        if (gamePhase != GamePhase.PLAYING) {
+                            val history = viewModel.getHistoryString()
+                            Text(text = "History: $history")
+                        }
+                        Button(onClick = { /*TODO*/ }) {
+                            Text(text = "Reset")
+                        }
                     }
                     if (viewModel.promotingPawn.collectAsState().value != null) {
                         PromotionDialog(color = viewModel.currentTurn.collectAsState().value) {

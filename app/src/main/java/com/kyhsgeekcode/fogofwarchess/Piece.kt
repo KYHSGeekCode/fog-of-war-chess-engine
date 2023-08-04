@@ -78,6 +78,7 @@ data class Piece(
                     if (piece.color != color) {
                         result.add(
                             Move(
+                                board.toSnapshot(),
                                 Coord(x, y),
                                 Coord(x + i, y + j),
                                 this,
@@ -88,7 +89,7 @@ data class Piece(
                     continue
                 }
                 // if there is no piece, add the move
-                result.add(Move(Coord(x, y), Coord(x + i, y + j), this))
+                result.add(Move(board.toSnapshot(), Coord(x, y), Coord(x + i, y + j), this))
             }
         }
         return result
@@ -113,12 +114,20 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this, captureTarget = piece))
+                    result.add(
+                        Move(
+                            board.toSnapshot(),
+                            Coord(x, y),
+                            coord,
+                            this,
+                            captureTarget = piece
+                        )
+                    )
                 }
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(Coord(x, y), coord, this))
+            result.add(Move(board.toSnapshot(), Coord(x, y), coord, this))
         }
         for (i in 1..7) {
             val coord = Coord(x - i, y - i)
@@ -129,12 +138,20 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this, captureTarget = piece))
+                    result.add(
+                        Move(
+                            board.toSnapshot(),
+                            Coord(x, y),
+                            coord,
+                            this,
+                            captureTarget = piece
+                        )
+                    )
                 }
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(Coord(x, y), coord, this))
+            result.add(Move(board.toSnapshot(), Coord(x, y), coord, this))
         }
         for (i in 1..7) {
             val coord = Coord(x + i, y - i)
@@ -145,12 +162,20 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this, captureTarget = piece))
+                    result.add(
+                        Move(
+                            board.toSnapshot(),
+                            Coord(x, y),
+                            coord,
+                            this,
+                            captureTarget = piece
+                        )
+                    )
                 }
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(Coord(x, y), coord, this))
+            result.add(Move(board.toSnapshot(), Coord(x, y), coord, this))
         }
         for (i in 1..7) {
             val coord = Coord(x - i, y + i)
@@ -161,12 +186,20 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), coord, this, captureTarget = piece))
+                    result.add(
+                        Move(
+                            board.toSnapshot(),
+                            Coord(x, y),
+                            coord,
+                            this,
+                            captureTarget = piece
+                        )
+                    )
                 }
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(Coord(x, y), coord, this))
+            result.add(Move(board.toSnapshot(), Coord(x, y), coord, this))
         }
         return result
     }
@@ -181,10 +214,18 @@ data class Piece(
             if (nx in 0..7 && ny in 0..7) {
                 val piece = board.getPiece(nx to ny)
                 if (piece == null) {
-                    result.add(Move(Coord(x, y), Coord(nx, ny), this))
+                    result.add(Move(board.toSnapshot(), Coord(x, y), Coord(nx, ny), this))
                 } else {
                     if (piece.color != color) {
-                        result.add(Move(Coord(x, y), Coord(nx, ny), this, captureTarget = piece))
+                        result.add(
+                            Move(
+                                board.toSnapshot(),
+                                Coord(x, y),
+                                Coord(nx, ny),
+                                this,
+                                captureTarget = piece
+                            )
+                        )
                     }
                 }
             }
@@ -200,48 +241,80 @@ data class Piece(
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(i, y), this, captureTarget = piece))
+                    result.add(
+                        Move(
+                            board.toSnapshot(),
+                            Coord(x, y),
+                            Coord(i, y),
+                            this,
+                            captureTarget = piece
+                        )
+                    )
                 }
                 break
             }
             // no piece, continue
-            result.add(Move(Coord(x, y), Coord(i, y), this))
+            result.add(Move(board.toSnapshot(), Coord(x, y), Coord(i, y), this))
         }
         for (i in x - 1 downTo 0) {
             val piece = board.getPiece(i to y)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(i, y), this, captureTarget = piece))
+                    result.add(
+                        Move(
+                            board.toSnapshot(),
+                            Coord(x, y),
+                            Coord(i, y),
+                            this,
+                            captureTarget = piece
+                        )
+                    )
                 }
                 break
             }
             // no piece, continue
-            result.add(Move(Coord(x, y), Coord(i, y), this))
+            result.add(Move(board.toSnapshot(), Coord(x, y), Coord(i, y), this))
         }
         for (i in y + 1..7) {
             val piece = board.getPiece(x to i)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(x, i), this, captureTarget = piece))
+                    result.add(
+                        Move(
+                            board.toSnapshot(),
+                            Coord(x, y),
+                            Coord(x, i),
+                            this,
+                            captureTarget = piece
+                        )
+                    )
                 }
                 break
             }
             // no piece, continue
-            result.add(Move(Coord(x, y), Coord(x, i), this))
+            result.add(Move(board.toSnapshot(), Coord(x, y), Coord(x, i), this))
         }
         for (i in y - 1 downTo 0) {
             val piece = board.getPiece(x to i)
             // if there is a piece, check if it is an enemy
             if (piece != null) {
                 if (piece.color != color) {
-                    result.add(Move(Coord(x, y), Coord(x, i), this, captureTarget = piece))
+                    result.add(
+                        Move(
+                            board.toSnapshot(),
+                            Coord(x, y),
+                            Coord(x, i),
+                            this,
+                            captureTarget = piece
+                        )
+                    )
                 }
                 break
             }
             // no piece, continue
-            result.add(Move(Coord(x, y), Coord(x, i), this))
+            result.add(Move(board.toSnapshot(), Coord(x, y), Coord(x, i), this))
         }
         return result
     }

@@ -5,8 +5,8 @@
 - [X] Pawn promotion
 - [X] Game ending
 - [X] Fog of war
-- Sounds
-- Pgn export
-- Refactoring
-- AI
+- [X] Sounds
+- [ ] Pgn export
+- [ ] Refactoring
+- [ ] AI
 
