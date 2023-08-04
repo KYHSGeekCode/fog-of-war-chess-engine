@@ -1,6 +1,10 @@
 package com.kyhsgeekcode.fogofwarchess
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -15,13 +19,18 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,11 +56,21 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column {
+                        val fogOfWar = remember { mutableStateOf(true) }
+                        Row {
+                            Text(text = "Fog of War: ")
+                            Switch(
+                                checked = fogOfWar.value,
+                                onCheckedChange = { fogOfWar.value = it }
+                            )
+                        }
+
                         Text(text = "Current Turn: ${viewModel.currentTurn.collectAsState().value}")
                         ChessBoard(
                             viewModel.boardSnapshot.collectAsState().value,
                             viewModel.possibleMoves.collectAsState().value,
                             viewModel.visibleCoords.collectAsState().value,
+                            fogOfWar = fogOfWar.value,
                             onCLickCell = {
                                 viewModel.onCellClicked(it, applicationContext)
                             })
@@ -59,10 +78,25 @@ class MainActivity : ComponentActivity() {
                         val gamePhase = viewModel.gamePhase.collectAsState().value
                         Text(text = "Game phase: $gamePhase")
                         if (gamePhase != GamePhase.PLAYING) {
-                            val history = viewModel.getHistoryString()
-                            Text(text = "History: $history")
+                            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                val history = viewModel.getHistoryString()
+                                Text(text = "History: $history")
+                                Button(onClick = {
+                                    val clipboard =
+                                        getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    val clip: ClipData = ClipData.newPlainText("pgn", history)
+                                    clipboard.setPrimaryClip(clip)
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Copied to clipboard",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }) {
+                                    Text(text = "Copy")
+                                }
+                            }
                         }
-                        Button(onClick = { /*TODO*/ }) {
+                        Button(onClick = { viewModel.reset() }) {
                             Text(text = "Reset")
                         }
                     }
@@ -170,6 +204,7 @@ fun ChessBoard(
     board: BoardSnapshot,
     possibleMoves: List<Move>,
     visibleCoords: List<Coord>,
+    fogOfWar: Boolean,
     onCLickCell: (Coord) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -184,7 +219,7 @@ fun ChessBoard(
                     ChessCell(
                         cell,
                         board.pieces[cell.x to cell.y],
-                        isVisible = visibleCoords.contains(Coord(cell.x, cell.y)),
+                        isVisible = !fogOfWar || visibleCoords.contains(Coord(cell.x, cell.y)),
                         onClick = {
                             onCLickCell(Coord(cell.x, cell.y))
                         },
@@ -210,6 +245,7 @@ fun GreetingPreview() {
                 Board().toSnapshot(),
                 possibleMoves = listOf(),
                 visibleCoords = listOf(),
+                fogOfWar = true,
                 onCLickCell = {})
         }
     }

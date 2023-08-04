@@ -49,6 +49,26 @@ class Board {
                 move.who.color,
                 move.promotingTo
             )
+        } else if (move.castlingRook != null) {
+            // castling move
+            pieces[move.to.x to move.to.y] =
+                move.who.copy(x = move.to.x, y = move.to.y, moved = true)
+            pieces.remove(move.castlingRook.x to move.castlingRook.y)
+            if (move.from.x > move.to.x) {
+                pieces[move.from.x - 1 to move.from.y] =
+                    move.castlingRook.copy(
+                        x = move.from.x - 1,
+                        y = move.from.y,
+                        moved = true
+                    )
+            } else {
+                pieces[move.from.x + 1 to move.from.y] =
+                    move.castlingRook.copy(
+                        x = move.from.x + 1,
+                        y = move.from.y,
+                        moved = true
+                    )
+            }
         } else {
             pieces[move.to.x to move.to.y] =
                 move.who.copy(x = move.to.x, y = move.to.y, moved = true)

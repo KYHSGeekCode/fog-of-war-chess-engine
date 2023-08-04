@@ -16,7 +16,7 @@ class ChessViewModel : ViewModel() {
     private val _currentTurn = MutableStateFlow(PieceColor.WHITE)
     val currentTurn = _currentTurn as StateFlow<PieceColor>
 
-    private val board = Board()
+    private var board = Board()
 
     private val _boardSnapshot = MutableStateFlow(board.toSnapshot())
     val boardSnapshot = _boardSnapshot as StateFlow<BoardSnapshot>
@@ -172,5 +172,16 @@ class ChessViewModel : ViewModel() {
             }
         }
         return historyString
+    }
+
+    fun reset() {
+        board = Board()
+        _boardSnapshot.value = board.toSnapshot()
+        _currentTurn.value = PieceColor.WHITE
+        _gamePhase.value = GamePhase.PLAYING
+        _selectedPiece.value = null
+        _possibleMoves.value = emptyList()
+        _promotingPawn.value = null
+        calculateVisibleCoords()
     }
 }

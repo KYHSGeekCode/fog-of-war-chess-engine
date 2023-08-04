@@ -5,9 +5,10 @@ import android.util.Log
 fun Piece.checkPawnCapture(board: Board): List<Move> {
     val result = mutableListOf<Move>()
     if (color == PieceColor.WHITE) { // y decreases when march forward
-        if (canCapture(board, Coord(x - 1, y - 1))) {
+        if (canCapture(board.toSnapshot(), Coord(x - 1, y - 1))) {
             result.add(
-                Move(board.toSnapshot(),
+                Move(
+                    board.toSnapshot(),
                     Coord(x, y),
                     Coord(x - 1, y - 1),
                     this,
@@ -16,9 +17,10 @@ fun Piece.checkPawnCapture(board: Board): List<Move> {
                 )
             )
         }
-        if (canCapture(board, Coord(x + 1, y - 1))) {
+        if (canCapture(board.toSnapshot(), Coord(x + 1, y - 1))) {
             result.add(
-                Move(board.toSnapshot(),
+                Move(
+                    board.toSnapshot(),
                     Coord(x, y),
                     Coord(x + 1, y - 1),
                     this,
@@ -28,9 +30,10 @@ fun Piece.checkPawnCapture(board: Board): List<Move> {
             )
         }
     } else {
-        if (canCapture(board, Coord(x - 1, y + 1))) {
+        if (canCapture(board.toSnapshot(), Coord(x - 1, y + 1))) {
             result.add(
-                Move(board.toSnapshot(),
+                Move(
+                    board.toSnapshot(),
                     Coord(x, y),
                     Coord(x - 1, y + 1),
                     this,
@@ -39,9 +42,10 @@ fun Piece.checkPawnCapture(board: Board): List<Move> {
                 )
             )
         }
-        if (canCapture(board, Coord(x + 1, y + 1))) {
+        if (canCapture(board.toSnapshot(), Coord(x + 1, y + 1))) {
             result.add(
-                Move(board.toSnapshot(),
+                Move(
+                    board.toSnapshot(),
                     Coord(x, y),
                     Coord(x + 1, y + 1),
                     this,
@@ -64,7 +68,8 @@ fun Piece.appendIfNoPiece(
     val piece = board.getPiece(coord)
     if (piece == null) {
         result.add(
-            Move(board.toSnapshot(),
+            Move(
+                board.toSnapshot(),
                 Coord(x, y),
                 coord,
                 this,
@@ -92,7 +97,8 @@ fun Piece.appendIfNoPiece2(
     val piece2 = board.getPiece(coord2)
     if (piece1 == null && piece2 == null) {
         result.add(
-            Move(board.toSnapshot(),
+            Move(
+                board.toSnapshot(),
                 Coord(x, y),
                 coord2,
                 this,
@@ -158,7 +164,8 @@ private fun Piece.checkEnPassant(board: Board): List<Move> {
         return emptyList()
     }
     return listOf(
-        Move(board.toSnapshot(),
+        Move(
+            board.toSnapshot(),
             Coord(x, y),
             Coord(lastMove.to.x, lastMove.to.y - distance / 2),
             this,

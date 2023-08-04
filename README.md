@@ -6,7 +6,9 @@
 - [X] Game ending
 - [X] Fog of war
 - [X] Sounds
-- [ ] Pgn export
-- [ ] Refactoring
+- [x] Pgn export
+- [x] Reset
+- [x] Castling
+- [ ] Replay
 - [ ] AI
 

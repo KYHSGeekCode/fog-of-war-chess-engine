@@ -25,4 +25,12 @@ data class BoardSnapshot(
     fun getPiece(x: Int, y: Int): Piece? {
         return pieces[Pair(x, y)]
     }
+
+    fun getPiece(coord: Coord): Piece? {
+        return pieces[coord.x to coord.y]
+    }
+
+    fun getPiece(coord: Pair<Int, Int>): Piece? {
+        return pieces[coord]
+    }
 }

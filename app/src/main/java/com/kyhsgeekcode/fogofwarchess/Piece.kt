@@ -24,14 +24,9 @@ data class Piece(
 ) {
     val coordCode = "${'a' + x}${8 - y}"
 
-    // returns possible moves based on the current board
-    fun getPossibleMoves(board: Board): List<Move> {
+    fun getPossibleMovesWithoutPawn(board: BoardSnapshot): List<Move> {
         val possibleMoves: List<Move>
         when (type) {
-            PieceType.PAWN -> {
-                possibleMoves = getPawnPossibleMoves(board)
-            }
-
             PieceType.ROOK -> {
                 possibleMoves = getRookPossibleMoves(board)
             }
@@ -51,6 +46,24 @@ data class Piece(
             PieceType.KING -> {
                 possibleMoves = getKingPossibleMoves(board)
             }
+
+            else -> {
+                throw Exception("Invalid piece type")
+            }
+        }
+        return possibleMoves
+    }
+
+    // returns possible moves based on the current board
+    fun getPossibleMoves(board: Board): List<Move> {
+        val possibleMoves = when (type) {
+            PieceType.PAWN -> {
+                getPawnPossibleMoves(board)
+            }
+
+            else -> {
+                getPossibleMovesWithoutPawn(board.toSnapshot())
+            }
         }
         // check if the move is valid: needless, as the king can be captured in the fog of war chess
 //        val result = mutableListOf<Move>()
@@ -64,7 +77,7 @@ data class Piece(
         return possibleMoves
     }
 
-    private fun getKingPossibleMoves(board: Board): List<Move> {
+    private fun getKingPossibleMoves(board: BoardSnapshot): List<Move> {
         val result = mutableListOf<Move>()
         for (i in -1..1) {
             for (j in -1..1) {
@@ -78,7 +91,7 @@ data class Piece(
                     if (piece.color != color) {
                         result.add(
                             Move(
-                                board.toSnapshot(),
+                                board,
                                 Coord(x, y),
                                 Coord(x + i, y + j),
                                 this,
@@ -89,20 +102,67 @@ data class Piece(
                     continue
                 }
                 // if there is no piece, add the move
-                result.add(Move(board.toSnapshot(), Coord(x, y), Coord(x + i, y + j), this))
+                result.add(Move(board, Coord(x, y), Coord(x + i, y + j), this))
+            }
+        }
+        // castling
+        if (!moved) {
+            // left rook
+            val leftRook = board.getPiece(0, y)
+            if (leftRook?.type == PieceType.ROOK && !leftRook.moved) {
+                var canCastle = true
+                for (i in 1 until x) {
+                    if (board.getPiece(i, y) != null) {
+                        canCastle = false
+                        break
+                    }
+                }
+                if (canCastle) {
+                    result.add(
+                        Move(
+                            board,
+                            Coord(x, y),
+                            Coord(x - 2, y),
+                            this,
+                            castlingRook = leftRook
+                        )
+                    )
+                }
+            }
+            // right rook
+            val rightRook = board.getPiece(7, y)
+            if (rightRook?.type == PieceType.ROOK && !rightRook.moved) {
+                var canCastle = true
+                for (i in x + 1 until 7) {
+                    if (board.getPiece(i, y) != null) {
+                        canCastle = false
+                        break
+                    }
+                }
+                if (canCastle) {
+                    result.add(
+                        Move(
+                            board,
+                            Coord(x, y),
+                            Coord(x + 2, y),
+                            this,
+                            castlingRook = rightRook
+                        )
+                    )
+                }
             }
         }
         return result
     }
 
-    private fun getQueenPossibleMoves(board: Board): List<Move> {
+    private fun getQueenPossibleMoves(board: BoardSnapshot): List<Move> {
         val result = mutableListOf<Move>()
         result.addAll(getRookPossibleMoves(board))
         result.addAll(getBishopPossibleMoves(board))
         return result
     }
 
-    private fun getBishopPossibleMoves(board: Board): List<Move> {
+    private fun getBishopPossibleMoves(board: BoardSnapshot): List<Move> {
         // extend to 4 directions
         val result = mutableListOf<Move>()
         for (i in 1..7) {
@@ -116,7 +176,7 @@ data class Piece(
                 if (piece.color != color) {
                     result.add(
                         Move(
-                            board.toSnapshot(),
+                            board,
                             Coord(x, y),
                             coord,
                             this,
@@ -127,7 +187,7 @@ data class Piece(
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(board.toSnapshot(), Coord(x, y), coord, this))
+            result.add(Move(board, Coord(x, y), coord, this))
         }
         for (i in 1..7) {
             val coord = Coord(x - i, y - i)
@@ -140,7 +200,7 @@ data class Piece(
                 if (piece.color != color) {
                     result.add(
                         Move(
-                            board.toSnapshot(),
+                            board,
                             Coord(x, y),
                             coord,
                             this,
@@ -151,7 +211,7 @@ data class Piece(
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(board.toSnapshot(), Coord(x, y), coord, this))
+            result.add(Move(board, Coord(x, y), coord, this))
         }
         for (i in 1..7) {
             val coord = Coord(x + i, y - i)
@@ -164,7 +224,7 @@ data class Piece(
                 if (piece.color != color) {
                     result.add(
                         Move(
-                            board.toSnapshot(),
+                            board,
                             Coord(x, y),
                             coord,
                             this,
@@ -175,7 +235,7 @@ data class Piece(
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(board.toSnapshot(), Coord(x, y), coord, this))
+            result.add(Move(board, Coord(x, y), coord, this))
         }
         for (i in 1..7) {
             val coord = Coord(x - i, y + i)
@@ -188,7 +248,7 @@ data class Piece(
                 if (piece.color != color) {
                     result.add(
                         Move(
-                            board.toSnapshot(),
+                            board,
                             Coord(x, y),
                             coord,
                             this,
@@ -199,12 +259,12 @@ data class Piece(
                 break
             }
             // if there is no piece, add the move
-            result.add(Move(board.toSnapshot(), Coord(x, y), coord, this))
+            result.add(Move(board, Coord(x, y), coord, this))
         }
         return result
     }
 
-    private fun getKnightPossibleMoves(board: Board): List<Move> {
+    private fun getKnightPossibleMoves(board: BoardSnapshot): List<Move> {
         val result = mutableListOf<Move>()
         val dx = intArrayOf(1, 2, 2, 1, -1, -2, -2, -1)
         val dy = intArrayOf(2, 1, -1, -2, -2, -1, 1, 2)
@@ -214,12 +274,12 @@ data class Piece(
             if (nx in 0..7 && ny in 0..7) {
                 val piece = board.getPiece(nx to ny)
                 if (piece == null) {
-                    result.add(Move(board.toSnapshot(), Coord(x, y), Coord(nx, ny), this))
+                    result.add(Move(board, Coord(x, y), Coord(nx, ny), this))
                 } else {
                     if (piece.color != color) {
                         result.add(
                             Move(
-                                board.toSnapshot(),
+                                board,
                                 Coord(x, y),
                                 Coord(nx, ny),
                                 this,
@@ -233,7 +293,7 @@ data class Piece(
         return result
     }
 
-    private fun getRookPossibleMoves(board: Board): List<Move> {
+    private fun getRookPossibleMoves(board: BoardSnapshot): List<Move> {
         // extend to 4 directions
         val result = mutableListOf<Move>()
         for (i in x + 1..7) {
@@ -243,7 +303,7 @@ data class Piece(
                 if (piece.color != color) {
                     result.add(
                         Move(
-                            board.toSnapshot(),
+                            board,
                             Coord(x, y),
                             Coord(i, y),
                             this,
@@ -254,7 +314,7 @@ data class Piece(
                 break
             }
             // no piece, continue
-            result.add(Move(board.toSnapshot(), Coord(x, y), Coord(i, y), this))
+            result.add(Move(board, Coord(x, y), Coord(i, y), this))
         }
         for (i in x - 1 downTo 0) {
             val piece = board.getPiece(i to y)
@@ -263,7 +323,7 @@ data class Piece(
                 if (piece.color != color) {
                     result.add(
                         Move(
-                            board.toSnapshot(),
+                            board,
                             Coord(x, y),
                             Coord(i, y),
                             this,
@@ -274,7 +334,7 @@ data class Piece(
                 break
             }
             // no piece, continue
-            result.add(Move(board.toSnapshot(), Coord(x, y), Coord(i, y), this))
+            result.add(Move(board, Coord(x, y), Coord(i, y), this))
         }
         for (i in y + 1..7) {
             val piece = board.getPiece(x to i)
@@ -283,7 +343,7 @@ data class Piece(
                 if (piece.color != color) {
                     result.add(
                         Move(
-                            board.toSnapshot(),
+                            board,
                             Coord(x, y),
                             Coord(x, i),
                             this,
@@ -294,7 +354,7 @@ data class Piece(
                 break
             }
             // no piece, continue
-            result.add(Move(board.toSnapshot(), Coord(x, y), Coord(x, i), this))
+            result.add(Move(board, Coord(x, y), Coord(x, i), this))
         }
         for (i in y - 1 downTo 0) {
             val piece = board.getPiece(x to i)
@@ -303,7 +363,7 @@ data class Piece(
                 if (piece.color != color) {
                     result.add(
                         Move(
-                            board.toSnapshot(),
+                            board,
                             Coord(x, y),
                             Coord(x, i),
                             this,
@@ -314,13 +374,13 @@ data class Piece(
                 break
             }
             // no piece, continue
-            result.add(Move(board.toSnapshot(), Coord(x, y), Coord(x, i), this))
+            result.add(Move(board, Coord(x, y), Coord(x, i), this))
         }
         return result
     }
 
 
-    fun canCapture(board: Board, Coord: Coord): Boolean {
+    fun canCapture(board: BoardSnapshot, Coord: Coord): Boolean {
         if (Coord.x < 0 || Coord.x > 7 || Coord.y < 0 || Coord.y > 7) { // out of board
             return false
         }

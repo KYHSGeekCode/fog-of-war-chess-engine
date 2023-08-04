@@ -7,6 +7,7 @@ data class Move(
     val from: Coord,
     val to: Coord,
     val who: Piece,
+    val castlingRook: Piece? = null,
     val promotingTo: PieceType? = null,
     val captureTarget: Piece? = null
 ) {
@@ -38,14 +39,56 @@ data class Move(
                 sb.append('=')
                 sb.append(promotingTo.shortName)
             }
+        } else if (castlingRook != null) {
+            if (castlingRook.x == 0) {
+                sb.append("O-O-O")
+            } else {
+                sb.append("O-O")
+            }
         } else {
             sb.append(who.type.shortName)
-//            if ()
-//                sb.append(from.coordCode)
+            // TODO: unambiguous move
+            // pile : a to h
+            // rank : 1 to 8
+            // check if there are other pieces that can move to the same place
+            // if there are, specify the pile
+            // if there are more than one, specify the rank
+            // if there are more than one, specify both
+            val ambiguousPieces = boardSnapshot.pieces.values.filter { piece ->
+                piece.type == who.type && piece.color == who.color && piece != who
+            }.filter {
+                val moves = it.getPossibleMovesWithoutPawn(boardSnapshot)
+                moves.any { move -> move.to == to }
+            }
+            if (ambiguousPieces.isNotEmpty()) {
+                // check if pile is ambiguous also
+                val ambiguousPiles = ambiguousPieces.filter { piece ->
+                    piece.x == who.x
+                }
+                if (ambiguousPiles.isEmpty()) {
+                    // pile only is ok
+                    sb.append(from.coordCode[0])
+                } else {
+                    // check if rank is ambiguous also
+                    val ambiguousRanks = ambiguousPiles.filter { piece ->
+                        piece.y == who.y
+                    }
+                    if (ambiguousRanks.isEmpty()) {
+                        // rank only is ok
+                        sb.append(from.coordCode[1])
+                    } else {
+                        // both are ambiguous
+                        sb.append(from.coordCode)
+                    }
+                }
+            }
             if (captureTarget != null) {
                 sb.append('x')
             }
             sb.append(to.coordCode)
+            if (captureTarget?.type == PieceType.KING) {
+                sb.append("#")
+            }
         }
         return sb.toString()
     }
